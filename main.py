@@ -1,5 +1,4 @@
 from tkinter import *
-# from tkinter.ttk import *
 
 piece_name = ["Pawn", "Knight", "Rook", "Bishop", "Queen", "King"] 
 color_name = ["Black", "White"]
@@ -50,8 +49,7 @@ class Game(Frame):
         
         self.canvas.focus_set()
 
-        self.canvas.bind('<Button-1>',
-                        self.action)
+        self.canvas.bind('<Button-1>',self.action)
 
     def draw(self): 
         for i in range(8):
@@ -63,7 +61,6 @@ class Game(Frame):
         sel = self.select
         t = sel.type
         if t == 0:
-            print("Pawn")
             if not sel.color:
                 if x!=sel.x:
                     if abs(x-sel.x) == 1 and y-sel.y == 1 and self.collision(x,y) == 2:
@@ -75,29 +72,6 @@ class Game(Frame):
                     return 1
                 else:
                     return 0
-                if sel.y == 8:
-                    prom = Tk()
-
-                    window.geometry("640x640")
-                    window.resizable(False, False)
-                    label = Label(window, text="바꿀 말을 선택해주세요.", fg="#a5008c")
-                    label.pack()
-
-                    Knight_button = Button(window, text="Knight", bg="#ffffff",fg="#a5008c", COMMAND= t == 1)
-                    Rook_button = Button(window, text="Rook", bg="#ffffff",fg="#a5008c", COMMAND= t == 2)
-                    Bishop_button = Button(window, text="Bishop", bg="#ffffff",fg="#a5008c", COMMAND= t == 3)
-                    Queen_button = Button(window, text="Queen", bg="#ffffff",fg="#a5008c", COMMAND=t == 4)
-                    King_button = Button(window, text="King", bg="#ffffff",fg="#a5008c", COMMAND=t == 5)
-        
-                    Knight_button.place(x=320, y=100, width=80, height=30)
-                    Rook_button.place(x=320, y=100, width=80, height=30)
-                    Bishop_button.place(x=320, y=100, width=80, height=30)
-                    Queen_button.place(x=320, y=100, width=80, height=30)
-                    King_button.place(x=320, y=100, width=80, height=30)
-
-                    prom.destroy()
-                    prom.mainloop()
-
             elif sel.color :
                 if x!=sel.x:
                     if abs(x-sel.x) == 1 and y-sel.y == -1 and self.collision(x,y) == 2:
@@ -110,29 +84,9 @@ class Game(Frame):
                     return 1
                 else:
                     return 0
-                if sel.y == 0:
-                    prom = Tk()
-                    window.geometry("640x640")
-                    window.resizable(False, False)
-                    label = Label(window, text="바꿀 말을 선택해주세요.", fg="#a5008c")
-                    label.pack()
-
-                    Knight_button = Button(window, text="Knight", bg="#ffffff",fg="#a5008c", COMMAND= t == 1)
-                    Rook_button = Button(window, text="Rook", bg="#ffffff",fg="#a5008c", COMMAND= t == 2)
-                    Bishop_button = Button(window, text="Bishop", bg="#ffffff",fg="#a5008c", COMMAND= t == 3)
-                    Queen_button = Button(window, text="Queen", bg="#ffffff",fg="#a5008c", COMMAND=t == 4)
-        
-                    Knight_button.place(x=320, y=100, width=80, height=30)
-                    Rook_button.place(x=320, y=100, width=80, height=30)
-                    Bishop_button.place(x=320, y=100, width=80, height=30)
-                    Queen_button.place(x=320, y=100, width=80, height=30)
-
-                    prom.destroy()
-                    prom.mainloop()
             else:
                 return 0
         elif t == 1:
-            print("Knight")
             dx = [1, 1, 2, 2, -1, -1, -2, -2]
             dy = [2, -2, 1, -1, 2, -2, 1, -1]
             for i in range(8):
@@ -140,7 +94,6 @@ class Game(Frame):
                     return 1
             return 0
         elif t == 2:
-            print("Rook")
             if x == sel.x:
                 for piece in self.pieces:
                     if piece.x == x and piece.y > min(y, sel.y) and piece.y < max(y, sel.y):
@@ -152,7 +105,6 @@ class Game(Frame):
                         return 0
                 return 1
         elif t == 3:
-            print("Bishop")
             if abs(x-sel.x) == abs(y-sel.y):
                 for piece in self.pieces:
                     if piece.x > min(x,sel.x) and piece.x < max(x,sel.x) and piece.y > min(y,sel.y) and piece.y < max(y,sel.y):
@@ -161,7 +113,6 @@ class Game(Frame):
                 return 1
             return 0
         elif t == 4:
-            print("Queen")
             if x == sel.x:
                 for piece in self.pieces:
                     if piece.x == x and piece.y > min(y, sel.y) and piece.y < max(y, sel.y):
@@ -180,7 +131,6 @@ class Game(Frame):
                 return 1
             return 0
         elif t == 5:
-            print("King")
             if abs(x - sel.x) <= 1 and abs(y - sel.y) <= 1:
                 return 1
             return 0
@@ -194,6 +144,33 @@ class Game(Frame):
                     self.enemy = piece
         return col
 
+    def check(self):
+        sel = self.select
+        is_check = -1
+        for piece in self.pieces:
+            if piece.color == 0 and piece.type == 5:
+                black_king = piece
+            elif piece.color == 1 and piece.type == 5:
+                white_king = piece
+        for piece in self.pieces:
+            self.select = piece
+            if piece.color == 1:
+                if not piece.type and self.moveable(black_king.x, black_king.y) == 2:
+                    is_check = 0
+                elif piece.type   and self.moveable(black_king.x, black_king.y) == 1:
+                    is_check = 0
+        for piece in self.pieces:
+            self.select = piece
+            if piece.color == 0:
+                if not piece.type and self.moveable(white_king.x, white_king.y) == 2:
+                    is_check = 1
+                elif piece.type and self.moveable(white_king.x, white_king.y) == 1:
+                    is_check = 1
+                
+        self.select = sel
+        return is_check
+
+    
     def action(self, event):
         x = event.x//80 
         y = event.y//80
@@ -220,7 +197,10 @@ class Game(Frame):
                             break
                     self.turn+=1
                 elif is_moveable == 1 and is_collision == 0:
+                    tx = self.select.x
+                    ty = self.select.y
                     self.select.move(x,y)
+                    print(self.check())
                     self.turn+=1
                 elif self.select.type and is_moveable == 1 and is_collision == 2:
                     self.select.move(x,y)
@@ -228,6 +208,20 @@ class Game(Frame):
                     for i in range(len(self.pieces)):
                         if self.pieces[i] == self.enemy:
                             self.canvas.delete(self.pieces[i].item)
+                            if self.pieces[i].type is 5:
+                                if self.pieces[i].color is 0:
+                                    display = Toplevel(window)
+                                    display.geometry("300x20")
+                                    display.title("Game finished")
+                                    display = Label(display, text="White Win!!!")
+                                    display.pack()
+                                else :
+                                    display = Toplevel(window)
+                                    display.geometry("300x20")
+                                    display.title("Game finished")
+                                    display = Label(display, text="Black Win!!!")
+                                    display.pack()
+                                    
                             del self.pieces[i]
                             break
                     print(len(self.pieces))
@@ -239,8 +233,6 @@ if __name__ == "__main__":
     window = Tk()
     window.title("ノーゲーム・ノーライフ")
     window.resizable(False, False)
-    #notebook = Notebook(window, width=300, height=300)
-    #notebook.pack()
     game = Game(window)
     game.mainloop()
  
